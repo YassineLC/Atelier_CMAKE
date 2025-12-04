@@ -4,27 +4,34 @@ jobs:
   Compilation:
     runs-on: ubuntu-latest
     steps:
-      - name: Compilation
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure & Build & CTest
         run: |
-          last_directory=$(basename ${{ runner.workspace }})
-          git clone https://github.com/${{ github.repository }}.git
-          cd ./$last_directory
-          mkdir build
-          cd build
-          cmake ..
-          make
-          make test
-  Test_Add:
+          cmake -S . -B build
+          cmake --build build -j2
+          ctest --test-dir build --output-on-failure
+
+  Tests:
     runs-on: ubuntu-latest
     needs: Compilation
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - { name: Test_add, args: "add 10 5" }
+          - { name: Test_sub, args: "sub 3 -2" }
+          - { name: Test_mul, args: "mul 5 5" }
+          - { name: Test_div, args: "div 1 5" }
+          - { name: Test_car, args: "car 5 0" }
+    name: Test_${{ matrix.case.name }}
     steps:
-      - name: Test fonction add
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build
         run: |
-          last_directory=$(basename ${{ runner.workspace }})
-          git clone https://github.com/${{ github.repository }}.git
-          cd ./$last_directory
-          mkdir build
-          cd build
-          cmake ..
-          make
-          ./src/calculator add 10 5
+          cmake -S . -B build
+          cmake --build build -j2
+      - name: Run ${{ matrix.case.name }}
+        run: |
+          ./build/src/calculator ${{ matrix.case.args }}
