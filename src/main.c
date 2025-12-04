@@ -3,7 +3,7 @@
 #include <string.h>
 #include "./../include/calculator.h"
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
 	if (argc == 4)
 	{
 	char* op = argv[1];
@@ -26,10 +26,13 @@ int main(int argc, char *argv[]){
 		r = _div(atof(a), atof(b));
 		printf("%lf",r);
 	}
-	else {printf("Erreur de parametres");}
+	else if (strcmp(op, "car") == 0) {
+		r = _carre(atof(a));
+		printf("%lf", r);
 	}
 	else {printf("Erreur de parametres");}
 	return 0;
+	}
 }
 
 		
